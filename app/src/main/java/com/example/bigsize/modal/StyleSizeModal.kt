@@ -1,3 +1,3 @@
 package com.example.bigsize.modal
 
-class StyleSizeModal(var ratio:String)
+class StyleSizeModal(var ratio: Int)
