@@ -2,6 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#ffffff"
     android:orientation="vertical">
 
     <LinearLayout
@@ -9,24 +10,49 @@
         android:layout_height="wrap_content"
         android:gravity="right">
 
+<!--        <TextView-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:text="defaa" />-->
+
+<!--        <TextView-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:text="hjshdkjdkja"-->
+<!--            android:textSize="39sp" />-->
+
         <ImageView
-            android:id="@+id/imgHistory"
+            android:id="@+id/imgBtnAdd"
             android:layout_width="50dp"
             android:layout_height="50dp"
-            android:src="@drawable/ic_add"
-            android:padding="10dp"/>
+            android:padding="10dp"
+            android:src="@drawable/ic_add" />
     </LinearLayout>
-
+<!--    <SeekBar-->
+<!--        android:id="@+id/seekBar"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:max="50"-->
+<!--        android:layout_margin="25dp"-->
+<!--        />-->
 <!--    <TextView-->
+<!--        android:id="@+id/text_view"-->
 <!--        android:layout_width="wrap_content"-->
 <!--        android:layout_height="wrap_content"-->
-<!--        android:text="DEFault" />-->
+<!--        android:textAppearance="@style/Base.TextAppearance.AppCompat.Large"-->
+<!--        android:layout_marginTop="20dp"-->
+<!--        android:layout_gravity="center_horizontal"-->
+<!--        />-->
+    <!--    <TextView-->
+    <!--        android:layout_width="wrap_content"-->
+    <!--        android:layout_height="wrap_content"-->
+    <!--        android:text="DEFault" />-->
 
-<!--    <TextView-->
-<!--        android:id="@+id/txtDemo"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:text="TXT demo" />-->
+    <!--    <TextView-->
+    <!--        android:id="@+id/txtDemo"-->
+    <!--        android:layout_width="wrap_content"-->
+    <!--        android:layout_height="wrap_content"-->
+    <!--        android:text="TXT demo" />-->
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerSizeList"

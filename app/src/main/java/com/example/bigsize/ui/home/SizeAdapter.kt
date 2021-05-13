@@ -1,5 +1,7 @@
 package com.example.bigsize.ui.home
 
+import android.util.Log
+import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -23,7 +25,10 @@ class SizeAdapter(var list: List<StyleSizeModal>, var sizeDefault: Float) :
         this.list = data
         notifyDataSetChanged()
     }
-
+    fun setChecked(ratio: Int) {
+        sizeChecked = ratio
+        notifyDataSetChanged()
+    }
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemViewHolder {
         var view =
             LayoutInflater.from(parent.context).inflate(R.layout.item_size_list, parent, false)
@@ -47,12 +52,12 @@ class SizeAdapter(var list: List<StyleSizeModal>, var sizeDefault: Float) :
         }
 
         holder.itemView.txtTitle.text = "${list.get(position).ratio}% - $radioDes"
-        holder.itemView.txtSizeHeader.textSize = radio * sizeDefault
-        holder.itemView.txtSizeNormal.textSize = radio * (sizeDefault - 2)
+        holder.itemView.txtTitle.setTextSize(TypedValue.COMPLEX_UNIT_DIP, sizeDefault);
+        holder.itemView.txtSizeHeader.setTextSize(TypedValue.COMPLEX_UNIT_DIP, radio * sizeDefault);
+        holder.itemView.txtSizeNormal.setTextSize(TypedValue.COMPLEX_UNIT_DIP, radio * (sizeDefault - 2));
         holder.itemView.btnApply.setOnClickListener({
             onClickItem?.onClick(position)
-            sizeChecked = list.get(position).ratio
-            setData(list)
+            setChecked(list.get(position).ratio)
         })
     }
 
