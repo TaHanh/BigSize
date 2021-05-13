@@ -60,12 +60,15 @@ class CustomFontSizeActivity : AppCompatActivity(), View.OnClickListener {
                     Log.e("123", "default : ${sharedIdValue}")
 
                 }
-//                onBackPressed()
+
+                // Put the String to pass back into an Intent and close this activity
+                val intent = Intent()
+                intent.putExtra("keyName", data)
+                setResult(RESULT_OK, intent)
+                finish()
             }
             R.id.btnCreate -> {
                 Log.e("123", "$data")
-
-
                 val editor:SharedPreferences.Editor =  sharedPreferences.edit()
                 var dataaa:String = arrayOf<Int>(data).joinToString(separator = ",")
                 editor.putString(Constant.sharedPrefSize,dataaa)

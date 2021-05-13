@@ -12,9 +12,11 @@ import kotlinx.android.synthetic.main.item_size_list.view.*
 
 class SizeAdapter(var list: List<StyleSizeModal>, var sizeDefault: Float) :
     RecyclerView.Adapter<SizeAdapter.ItemViewHolder>() {
+    companion object{
+        var  selectedIndex = 0;
+    }
     var sizeHeader: Float = 22F
     var sizeNormal: Float = 18F
-    var sizeChecked = 100;
     var onClickItem: OnClickItem? = null;
 
 
@@ -25,10 +27,12 @@ class SizeAdapter(var list: List<StyleSizeModal>, var sizeDefault: Float) :
         this.list = data
         notifyDataSetChanged()
     }
-    fun setChecked(ratio: Int) {
-        sizeChecked = ratio
+
+    fun setChecked(index: Int) {
+        selectedIndex = index;
         notifyDataSetChanged()
     }
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemViewHolder {
         var view =
             LayoutInflater.from(parent.context).inflate(R.layout.item_size_list, parent, false)
@@ -45,7 +49,7 @@ class SizeAdapter(var list: List<StyleSizeModal>, var sizeDefault: Float) :
             radioDes = "(${list.get(position).ratio / 100.toDouble()}x)"
         }
 
-        if (sizeChecked == list.get(position).ratio) {
+        if (selectedIndex == position) {
             holder.itemView.imgChecked.visibility = View.VISIBLE
         } else {
             holder.itemView.imgChecked.visibility = View.GONE
@@ -54,10 +58,13 @@ class SizeAdapter(var list: List<StyleSizeModal>, var sizeDefault: Float) :
         holder.itemView.txtTitle.text = "${list.get(position).ratio}% - $radioDes"
         holder.itemView.txtTitle.setTextSize(TypedValue.COMPLEX_UNIT_DIP, sizeDefault);
         holder.itemView.txtSizeHeader.setTextSize(TypedValue.COMPLEX_UNIT_DIP, radio * sizeDefault);
-        holder.itemView.txtSizeNormal.setTextSize(TypedValue.COMPLEX_UNIT_DIP, radio * (sizeDefault - 2));
+        holder.itemView.txtSizeNormal.setTextSize(
+            TypedValue.COMPLEX_UNIT_DIP,
+            radio * (sizeDefault - 2)
+        );
         holder.itemView.btnApply.setOnClickListener({
-            onClickItem?.onClick(position)
-            setChecked(list.get(position).ratio)
+            setChecked(position);
+            onClickItem?.onClick(position);
         })
     }
 

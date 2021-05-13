@@ -25,6 +25,12 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.bigsize.R
 import com.example.bigsize.modal.StyleSizeModal
 import com.example.bigsize.ui.custom_font_size.CustomFontSizeActivity
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.ObservableOnSubscribe
+import io.reactivex.rxjava3.core.Observer
+import io.reactivex.rxjava3.core.Scheduler
+import io.reactivex.rxjava3.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_size_list.*
 import kotlinx.android.synthetic.main.create_size_dialog.*
 import kotlinx.android.synthetic.main.item_size_list.view.*
@@ -32,9 +38,11 @@ import kotlinx.android.synthetic.main.item_size_list.view.*
 class SizeListActivity : AppCompatActivity(), View.OnClickListener {
     var sizeList: ArrayList<StyleSizeModal> = ArrayList();
     var sizeChecked = 100;
+    var selectedItem = 0;
     var sizeDefault: Float = 18F;
     private val REQUEST_CODE = 101
     private var isPermission = false;
+    private val SECOND_ACTIVITY_REQUEST_CODE = 0
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_size_list)
@@ -55,17 +63,30 @@ class SizeListActivity : AppCompatActivity(), View.OnClickListener {
         init()
         configGirdView(sizeDefault);
     }
-    fun init(){
+
+    fun init() {
         imgBtnAdd.setOnClickListener(this)
     }
+
     override fun onClick(view: View?) {
-        when(view?.id){
-            R.id.imgBtnAdd->{
+        when (view?.id) {
+            R.id.imgBtnAdd -> {
                 val intent = Intent(this, CustomFontSizeActivity::class.java)
-                startActivity(intent)
-                startActivityForResult(intent, 1)
+                startActivityForResult(intent, SECOND_ACTIVITY_REQUEST_CODE)
 //                showDialog();
             }
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data);
+        Log.e("1234556677", "$requestCode $resultCode $data ")
+        if (requestCode == SECOND_ACTIVITY_REQUEST_CODE) {
+            if (resultCode == RESULT_OK) {
+                val returnString = data!!.getIntExtra("keyName", 0)
+                Log.e("1234556677", "$returnString")
+            }
+
         }
     }
 
@@ -76,7 +97,11 @@ class SizeListActivity : AppCompatActivity(), View.OnClickListener {
             LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
         adapter.onClickItem = object : SizeAdapter.OnClickItem {
             override fun onClick(index: Int) {
-                applySize(sizeList[index].ratio)
+                Observable.just(applySize(sizeList[index].ratio), "abcd","bcda").subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe {
+                        Log.e("TAGGGGG", "onClick: done${it}" )
+                    };
             }
 
         }
@@ -111,21 +136,12 @@ class SizeListActivity : AppCompatActivity(), View.OnClickListener {
 
 
         val btnCreate = dialog.findViewById(R.id.btnCreate) as Button
-        btnCreate.setOnClickListener{
+        btnCreate.setOnClickListener {
             dialog.dismiss()
         }
         dialog.show()
     }
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data);
-        Log.e("1234556677", "$requestCode $resultCode$data ")
-        if (requestCode == 1) {
-            if(resultCode == RESULT_OK) {
-                Log.e("1234556677", "$data")
-            }
 
-        }
-    }
     //PERMISSION
     private fun checkSinglePermission(permission: String): Boolean {
         return ContextCompat.checkSelfPermission(
