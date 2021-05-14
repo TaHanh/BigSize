@@ -1,71 +1,69 @@
 package com.example.bigsize.ui.home
 
 import android.Manifest
-import android.app.Activity
 import android.app.Dialog
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.content.pm.PackageManager
-import android.content.res.Configuration
-import android.content.res.Resources
 import android.net.Uri
-import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Handler
 import android.provider.Settings
-import android.util.DisplayMetrics
 import android.util.Log
-import android.util.TypedValue
 import android.view.View
 import android.view.Window
-import android.view.WindowManager
 import android.widget.*
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.bigsize.R
+import com.example.bigsize.common.Common
+import com.example.bigsize.common.Constant
 import com.example.bigsize.modal.StyleSizeModal
 import com.example.bigsize.ui.custom_font_size.CustomFontSizeActivity
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Observable
-import io.reactivex.rxjava3.core.ObservableOnSubscribe
-import io.reactivex.rxjava3.core.Observer
-import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_size_list.*
-import kotlinx.android.synthetic.main.create_size_dialog.*
-import kotlinx.android.synthetic.main.item_size_list.view.*
+import java.util.*
+import kotlin.collections.ArrayList
+import kotlin.concurrent.schedule
 
 class SizeListActivity : AppCompatActivity(), View.OnClickListener {
     var sizeList: ArrayList<StyleSizeModal> = ArrayList();
-    var sizeChecked = 100;
-    var selectedItem = 0;
     var sizeDefault: Float = 18F;
     private val REQUEST_CODE = 101
     private var isPermission = false;
     private val SECOND_ACTIVITY_REQUEST_CODE = 0
+    private val THIRD_ACTIVITY_REQUEST_CODE = 1
+    lateinit var sharedPreferences: SharedPreferences
+    val Constant = Constant()
+    lateinit var adapter: SizeAdapter
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_size_list)
         setupPermissions()
-
-        var list: ArrayList<Int> = arrayListOf(100, 120, 140, 160, 180, 200, 300);
-        for (item: Int in list) {
-            sizeList.add(StyleSizeModal(item))
-        }
-//        var defaultTextView: TextView = TextView(this);
-//        var sourceTextSize = defaultTextView.getTextSize();
-//        sizeDefault =
-//            Math.ceil((sourceTextSize / getResources().getDisplayMetrics().density).toDouble())
-//                .toFloat();
-//
-//
-//        Log.e("111","123 $sourceTextSize")
+        sharedPreferences = this.getSharedPreferences(
+            Constant.sharedPref,
+            Context.MODE_PRIVATE
+        )
+        imgBtnAdd.setOnClickListener(this)
+        btnMyFontSize.setOnClickListener(this)
         init()
-        configGirdView(sizeDefault);
     }
 
     fun init() {
-        imgBtnAdd.setOnClickListener(this)
+        llProgressBar.visibility = View.GONE
+        var list: ArrayList<Int> = arrayListOf(100, 120, 140, 160, 180, 200);
+        Common.fontSizeSharedPref = getSharedPref()
+        list.addAll(0, Common.fontSizeSharedPref)
+        for (item: Int in list) {
+            sizeList.add(StyleSizeModal(item))
+        }
+        Common.fontSizeList.addAll(list)
+        Common.selectedRatio = getResources().getConfiguration().fontScale;
+        configGirdView(sizeList, sizeDefault, Common.selectedRatio);
     }
 
     override fun onClick(view: View?) {
@@ -75,56 +73,97 @@ class SizeListActivity : AppCompatActivity(), View.OnClickListener {
                 startActivityForResult(intent, SECOND_ACTIVITY_REQUEST_CODE)
 //                showDialog();
             }
+            R.id.btnMyFontSize -> {
+                Log.e("TAG", "onClick: ", )
+                val intent = Intent(this, MyFontSizeActivity::class.java)
+                startActivityForResult(intent, THIRD_ACTIVITY_REQUEST_CODE)
+            }
         }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data);
-        Log.e("1234556677", "$requestCode $resultCode $data ")
         if (requestCode == SECOND_ACTIVITY_REQUEST_CODE) {
             if (resultCode == RESULT_OK) {
-                val returnString = data!!.getIntExtra("keyName", 0)
-                Log.e("1234556677", "$returnString")
+                val value = data!!.getIntExtra("keyName", 0)
+                if (value != 0) {
+                    sizeList.add(0, StyleSizeModal(value));
+                    Common.fontSizeList.add(0, value)
+                    Common.fontSizeSharedPref.add(0, value)
+//                    val editor: SharedPreferences.Editor = sharedPreferences.edit()
+//                    var sizeListString: String =
+//                        Common.fontSizeSharedPref.joinToString(separator = ",")
+//                    editor.putString(Constant.sharedPrefSize, sizeListString)
+//                    editor.apply()
+//                    editor.commit()
+                    setSharedPref()
+                    adapter.notifyDataSetChanged();
+                }
             }
-
         }
     }
 
-    private fun configGirdView(sizeDefault: Float) {
-        var adapter = SizeAdapter(sizeList, sizeDefault);
+    private fun configGirdView(sizeList: List<StyleSizeModal>, sizeDefault: Float, selectedRatio: Float) {
+        adapter = SizeAdapter(sizeList, sizeDefault, selectedRatio);
         recyclerSizeList.setAdapter(adapter);
         recyclerSizeList.layoutManager =
             LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
         adapter.onClickItem = object : SizeAdapter.OnClickItem {
             override fun onClick(index: Int) {
-                Observable.just(applySize(sizeList[index].ratio), "abcd","bcda").subscribeOn(Schedulers.io())
+                llProgressBar.visibility = View.VISIBLE
+
+//                applySize(sizeList[index].ratio)
+                Observable.just(applySize(sizeList[index].ratio)).subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe {
-                        Log.e("TAGGGGG", "onClick: done${it}" )
+                        Log.e("TAGGGGG", "onClick: done")
+
                     };
+                val handler = Handler()
+                handler.postDelayed({
+                    llProgressBar.visibility = View.GONE
+                }, 5000)
             }
 
         }
     }
 
-
+    private fun getSharedPref(): ArrayList<Int> {
+        val sharedIdValue = sharedPreferences.getString(Constant.sharedPrefSize, "defaultname")
+        if (sharedIdValue.equals("defaultname")) {
+            return arrayListOf()
+        } else {
+            val result: ArrayList<Int> =
+                sharedIdValue?.split(",")?.map { it.toInt() } as ArrayList<Int>;
+            return result
+        }
+    }
+    private fun setSharedPref() {
+        val editor: SharedPreferences.Editor = sharedPreferences.edit()
+        var sizeListString: String =
+            Common.fontSizeSharedPref.joinToString(separator = ",")
+        editor.putString(Constant.sharedPrefSize, sizeListString)
+        editor.apply()
+        editor.commit()
+    }
     private fun applySize(value: Int) {
         var result: Float = value / 100.0.toFloat();
         Settings.System.putFloat(
             getBaseContext().getContentResolver(),
             Settings.System.FONT_SCALE, result
         );
+
 //        adjustFontScale(getResources().getConfiguration(), result);
     }
 
-    public fun adjustFontScale(configuration: Configuration, scale: Float) {
-        configuration.fontScale = scale;
-        var metrics: DisplayMetrics = getResources().getDisplayMetrics();
-        var wm: WindowManager = getSystemService(WINDOW_SERVICE) as WindowManager;
-        wm.getDefaultDisplay().getMetrics(metrics);
-        metrics.scaledDensity = configuration.fontScale * metrics.density;
-        getBaseContext().getResources().updateConfiguration(configuration, metrics);
-    }
+//    public fun adjustFontScale(configuration: Configuration, scale: Float) {
+//        configuration.fontScale = scale;
+//        var metrics: DisplayMetrics = getResources().getDisplayMetrics();
+//        var wm: WindowManager = getSystemService(WINDOW_SERVICE) as WindowManager;
+//        wm.getDefaultDisplay().getMetrics(metrics);
+//        metrics.scaledDensity = configuration.fontScale * metrics.density;
+//        getBaseContext().getResources().updateConfiguration(configuration, metrics);
+//    }
 
     private fun showDialog() {
         val dialog = Dialog(this)

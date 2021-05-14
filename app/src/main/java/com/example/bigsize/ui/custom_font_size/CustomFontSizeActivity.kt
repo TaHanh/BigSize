@@ -10,7 +10,9 @@ import android.util.TypedValue
 import android.view.View
 import android.widget.SeekBar
 import com.example.bigsize.R
+import com.example.bigsize.common.Common
 import com.example.bigsize.common.Constant
+import com.example.bigsize.modal.StyleSizeModal
 import kotlinx.android.synthetic.main.activity_custom_font_size.*
 import kotlinx.android.synthetic.main.activity_size_list.*
 
@@ -23,10 +25,12 @@ class CustomFontSizeActivity : AppCompatActivity(), View.OnClickListener {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_custom_font_size)
         sharedPreferences = this.getSharedPreferences(
-        Constant.sharedPref,
-        Context.MODE_PRIVATE)
+            Constant.sharedPref,
+            Context.MODE_PRIVATE
+        )
         initData()
     }
+
     fun initData() {
         btnBack.setOnClickListener(this)
         btnCreate.setOnClickListener(this)
@@ -34,9 +38,12 @@ class CustomFontSizeActivity : AppCompatActivity(), View.OnClickListener {
 
             override fun onProgressChanged(seekBar: SeekBar, i: Int, b: Boolean) {
                 // Display the current progress of SeekBar
-                txtChangeSize.setTextSize(TypedValue.COMPLEX_UNIT_DIP, i/10.toFloat() * sizeDefault);
-                txtChangeSize.text = "Ab ${i*10}%"
-                data = i*10;
+                txtChangeSize.setTextSize(
+                    TypedValue.COMPLEX_UNIT_DIP,
+                    i / 10.toFloat() * sizeDefault
+                );
+                txtChangeSize.text = "Ab ${i * 10}%"
+                data = i * 10;
             }
 
             override fun onStartTrackingTouch(seekBar: SeekBar) {
@@ -50,37 +57,24 @@ class CustomFontSizeActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     override fun onClick(v: View?) {
-        when(v?.id) {
+        when (v?.id) {
             R.id.btnBack -> {
-                val sharedIdValue = sharedPreferences.getString(Constant.sharedPrefSize,"defaultname")
-                if(sharedIdValue.equals("defaultname")){
-                    Log.e("123", "default name: ${sharedIdValue}")
-
-                }else{
-                    Log.e("123", "default : ${sharedIdValue}")
-
-                }
-
-                // Put the String to pass back into an Intent and close this activity
-                val intent = Intent()
-                intent.putExtra("keyName", data)
-                setResult(RESULT_OK, intent)
-                finish()
+                onBackPressed()
             }
             R.id.btnCreate -> {
-                Log.e("123", "$data")
-                val editor:SharedPreferences.Editor =  sharedPreferences.edit()
-                var dataaa:String = arrayOf<Int>(data).joinToString(separator = ",")
-                editor.putString(Constant.sharedPrefSize,dataaa)
-                editor.apply()
-                editor.commit()
+                if (Common.fontSizeList.contains(data)) {
+                    txtNotifyCreateSize.text = "This font size already exists"
+                } else {
+                    txtNotifyCreateSize.text = ""
+                    // Put the String to pass back into an Intent and close this activity
+                    val intent = Intent()
+                    intent.putExtra("keyName", data)
+                    setResult(RESULT_OK, intent)
+                    finish()
+                }
+
             }
         }
     }
-    override fun onBackPressed() {
-        var intent = Intent();
-        intent.putExtra("New Name", data);
-        setResult(RESULT_OK, intent);
-        super.onBackPressed()
-    }
+
 }

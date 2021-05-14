@@ -14,35 +14,31 @@
             android:layout_height="wrap_content"
             android:gravity="center"
             android:layout_marginHorizontal="10dp">
+
+            <ImageView
+                android:id="@+id/btnMyBtnAdd"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:padding="10dp"
+                android:src="@drawable/ic_baseline_arrow_back_24" />
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/app_name"
-                android:textSize="@dimen/text_size_large"
                 android:layout_weight="1"
-                />
-            <ImageView
-                android:id="@+id/btnMyFontSize"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:padding="10dp"
-                android:src="@drawable/ic_font_size" />
-            <ImageView
-                android:id="@+id/imgBtnAdd"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:padding="10dp"
-                android:src="@drawable/ic_add" />
+                android:textColor="@color/black"
+                android:textSize="@dimen/text_size_large"
+                android:text="@string/my_font_size"
+                android:textStyle="bold"/>
         </LinearLayout>
 
 
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recyclerSizeList"
+            android:id="@+id/recyclerMyFontSizeList"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
     </LinearLayout>
     <include
-        android:id="@+id/llProgressBar"
+        android:id="@+id/mySizeProgressBar"
         layout="@layout/progress_bar_loading"/>
 </RelativeLayout>

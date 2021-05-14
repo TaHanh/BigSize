@@ -16,6 +16,8 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.BigSize">
         <activity android:name=".ui.custom_font_size.CustomFontSizeActivity"></activity>
+        <activity android:name=".ui.home.MyFontSizeActivity">
+        </activity>
         <activity android:name=".ui.home.SizeListActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -23,7 +25,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".MainActivity" />
+        <activity android:name=".MainActivity" >
+
+        </activity>
+
     </application>
 
 </manifest>

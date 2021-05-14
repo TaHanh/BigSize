@@ -1,6 +1,5 @@
 package com.example.bigsize.ui.home
 
-import android.util.Log
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
@@ -8,19 +7,13 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.bigsize.R
 import com.example.bigsize.modal.StyleSizeModal
-import kotlinx.android.synthetic.main.item_size_list.view.*
+import kotlinx.android.synthetic.main.item_font_size.view.*
 
-class SizeAdapter(var list: List<StyleSizeModal>, var sizeDefault: Float) :
-    RecyclerView.Adapter<SizeAdapter.ItemViewHolder>() {
-    companion object{
-        var  selectedIndex = 0;
-    }
-    var sizeHeader: Float = 22F
-    var sizeNormal: Float = 18F
+class SizeAdapter(var list: List<StyleSizeModal>, var sizeDefault: Float, var selectedRatio:Float) :
+    RecyclerView.Adapter<SizeAdapter.ItemSizeViewHolder>() {
     var onClickItem: OnClickItem? = null;
 
-
-    class ItemViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    class ItemSizeViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
     }
 
     fun setData(data: List<StyleSizeModal>) {
@@ -28,31 +21,34 @@ class SizeAdapter(var list: List<StyleSizeModal>, var sizeDefault: Float) :
         notifyDataSetChanged()
     }
 
-    fun setChecked(index: Int) {
-        selectedIndex = index;
+    fun setChecked(position: Int) {
+        var value: Float = list.get(position).ratio / 100.toFloat()
+        selectedRatio = value;
         notifyDataSetChanged()
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SizeAdapter.ItemSizeViewHolder {
         var view =
-            LayoutInflater.from(parent.context).inflate(R.layout.item_size_list, parent, false)
-        return ItemViewHolder(view)
+            LayoutInflater.from(parent.context).inflate(R.layout.item_font_size, parent, false)
+        return ItemSizeViewHolder(view)
     }
 
-    override fun onBindViewHolder(holder: ItemViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: ItemSizeViewHolder, position: Int) {
         var radioDes = ""
         var radio = list.get(position).ratio / 100.toFloat()
 
         if (list.get(position).ratio == 100) {
             radioDes = "Default (1x)"
         } else {
-            radioDes = "(${list.get(position).ratio / 100.toDouble()}x)"
+            radioDes = "(${radio}x)"
         }
 
-        if (selectedIndex == position) {
+        if (selectedRatio == list.get(position).ratio / 100.toFloat()) {
             holder.itemView.imgChecked.visibility = View.VISIBLE
+            holder.itemView.btnApply.visibility = View.INVISIBLE
         } else {
             holder.itemView.imgChecked.visibility = View.GONE
+            holder.itemView.btnApply.visibility = View.VISIBLE
         }
 
         holder.itemView.txtTitle.text = "${list.get(position).ratio}% - $radioDes"
