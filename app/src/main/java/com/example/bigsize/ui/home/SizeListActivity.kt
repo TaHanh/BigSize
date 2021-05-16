@@ -71,10 +71,9 @@ class SizeListActivity : AppCompatActivity(), View.OnClickListener {
             R.id.imgBtnAdd -> {
                 val intent = Intent(this, CustomFontSizeActivity::class.java)
                 startActivityForResult(intent, SECOND_ACTIVITY_REQUEST_CODE)
-//                showDialog();
             }
             R.id.btnMyFontSize -> {
-                Log.e("TAG", "onClick: ")
+
                 val intent = Intent(this, MyFontSizeActivity::class.java)
                 startActivityForResult(intent, THIRD_ACTIVITY_REQUEST_CODE)
             }
@@ -90,12 +89,6 @@ class SizeListActivity : AppCompatActivity(), View.OnClickListener {
                     sizeList.add(0, StyleSizeModal(value));
                     Common.fontSizeList.add(0, value)
                     Common.fontSizeSharedPref.add(0, value)
-//                    val editor: SharedPreferences.Editor = sharedPreferences.edit()
-//                    var sizeListString: String =
-//                        Common.fontSizeSharedPref.joinToString(separator = ",")
-//                    editor.putString(Constant.sharedPrefSize, sizeListString)
-//                    editor.apply()
-//                    editor.commit()
                     setSharedPref()
                     adapter.notifyDataSetChanged();
                 }
@@ -116,16 +109,15 @@ class SizeListActivity : AppCompatActivity(), View.OnClickListener {
             override fun onClick(index: Int) {
                 llProgressBar.visibility = View.VISIBLE
 
-//                applySize(sizeList[index].ratio) applySize(sizeList[index].ratio)
-                Observable.just("1234").subscribeOn(Schedulers.io())
+                Observable.just(applySize(sizeList[index].ratio)).subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe {
-                        Log.e("TAGGGGG", "onClick: done")
+//                        Log.e("TAGGGGG", "onClick: done")
                         val handler = Handler()
                         handler.postDelayed({
                             llProgressBar.visibility = View.GONE
                             showDialog()
-                        }, 5000)
+                        }, 1000)
 
                     };
 
@@ -142,7 +134,7 @@ class SizeListActivity : AppCompatActivity(), View.OnClickListener {
             val result: ArrayList<Int> = arrayListOf()
             sharedIdValue?.split(",")?.map {
                 if (it.isNotEmpty()) {
-                    Log.e("TAG", "getSharedPrefgetSharedPref:$it ")
+
                     result.add(it.toInt())
                 }
             }
@@ -165,22 +157,16 @@ class SizeListActivity : AppCompatActivity(), View.OnClickListener {
 
     private fun applySize(value: Int) {
         var result: Float = value / 100.0.toFloat();
-        Settings.System.putFloat(
-            getBaseContext().getContentResolver(),
-            Settings.System.FONT_SCALE, result
-        );
+        try {
+            Settings.System.putFloat(
+                getBaseContext().getContentResolver(),
+                Settings.System.FONT_SCALE, result
+            );
+        } catch (e: Exception){
+            Log.e("TAG", "onClickException: $e")
+        }
 
-//        adjustFontScale(getResources().getConfiguration(), result);
     }
-
-//    public fun adjustFontScale(configuration: Configuration, scale: Float) {
-//        configuration.fontScale = scale;
-//        var metrics: DisplayMetrics = getResources().getDisplayMetrics();
-//        var wm: WindowManager = getSystemService(WINDOW_SERVICE) as WindowManager;
-//        wm.getDefaultDisplay().getMetrics(metrics);
-//        metrics.scaledDensity = configuration.fontScale * metrics.density;
-//        getBaseContext().getResources().updateConfiguration(configuration, metrics);
-//    }
 
     private fun showDialog() {
         val dialog = Dialog(this)
@@ -212,23 +198,24 @@ class SizeListActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     fun requestPdfPermissions() {
-
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
             var permList = arrayOf(
                 Manifest.permission.WRITE_SETTINGS
             )
             try {
                 requestPermissions(permList, REQUEST_CODE)
+                if (!Settings.System.canWrite(getApplicationContext())) {
+                    var intent: Intent = Intent(
+                        Settings.ACTION_MANAGE_WRITE_SETTINGS,
+                        Uri.parse("package:" + getPackageName())
+                    );
+                    startActivityForResult(intent, 200);
+                }
 
             } catch (e: Exception) {
+
             }
-            if (!Settings.System.canWrite(getApplicationContext())) {
-                var intent: Intent = Intent(
-                    Settings.ACTION_MANAGE_WRITE_SETTINGS,
-                    Uri.parse("package:" + getPackageName())
-                );
-                startActivityForResult(intent, 200);
-            }
+
         }
     }
 

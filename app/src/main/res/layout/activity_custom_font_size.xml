@@ -60,6 +60,7 @@
             android:layout_margin="15dp"
             android:minHeight="20dp"
             android:max="30"
+            android:progress="10"
             android:min="5" />
 
         <Button
