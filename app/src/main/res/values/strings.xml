@@ -5,4 +5,6 @@
     <string name="change_font_size">Change font size</string>
     <string name="waiting">Please wait ...</string>
     <string name="my_font_size">My Font Size</string>
+    <string name="font_size_changed">Font Size Changed</string>
+    <string name="font_size_changed_des">You need to restart your phone for the best experience with the new font.</string>
 </resources>

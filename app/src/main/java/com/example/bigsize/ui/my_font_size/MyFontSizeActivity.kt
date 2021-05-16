@@ -41,10 +41,17 @@ class MyFontSizeActivity : AppCompatActivity(), View.OnClickListener {
             Context.MODE_PRIVATE
         )
         btnMyBtnAdd.setOnClickListener(this)
-        init()
+        checkEmptyList()
+        initData()
     }
-
-    fun init() {
+fun checkEmptyList(){
+    if(Common.fontSizeSharedPref.size > 0) {
+        linearEmpty.visibility = View.GONE
+    } else {
+        linearEmpty.visibility = View.VISIBLE
+    }
+}
+    fun initData() {
         for (item: Int in Common.fontSizeSharedPref) {
             mySizeList.add(StyleSizeModal(item))
         }
@@ -93,6 +100,7 @@ class MyFontSizeActivity : AppCompatActivity(), View.OnClickListener {
                 Common.fontSizeSharedPref.removeAt(index)
                 setSharedPref()
                 adapter.setData(mySizeList)
+                checkEmptyList()
             }
 
         }

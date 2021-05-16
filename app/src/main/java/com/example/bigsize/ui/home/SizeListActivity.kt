@@ -74,7 +74,7 @@ class SizeListActivity : AppCompatActivity(), View.OnClickListener {
 //                showDialog();
             }
             R.id.btnMyFontSize -> {
-                Log.e("TAG", "onClick: ", )
+                Log.e("TAG", "onClick: ")
                 val intent = Intent(this, MyFontSizeActivity::class.java)
                 startActivityForResult(intent, THIRD_ACTIVITY_REQUEST_CODE)
             }
@@ -103,7 +103,11 @@ class SizeListActivity : AppCompatActivity(), View.OnClickListener {
         }
     }
 
-    private fun configGirdView(sizeList: List<StyleSizeModal>, sizeDefault: Float, selectedRatio: Float) {
+    private fun configGirdView(
+        sizeList: List<StyleSizeModal>,
+        sizeDefault: Float,
+        selectedRatio: Float
+    ) {
         adapter = SizeAdapter(sizeList, sizeDefault, selectedRatio);
         recyclerSizeList.setAdapter(adapter);
         recyclerSizeList.layoutManager =
@@ -112,17 +116,19 @@ class SizeListActivity : AppCompatActivity(), View.OnClickListener {
             override fun onClick(index: Int) {
                 llProgressBar.visibility = View.VISIBLE
 
-//                applySize(sizeList[index].ratio)
-                Observable.just(applySize(sizeList[index].ratio)).subscribeOn(Schedulers.io())
+//                applySize(sizeList[index].ratio) applySize(sizeList[index].ratio)
+                Observable.just("1234").subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe {
                         Log.e("TAGGGGG", "onClick: done")
+                        val handler = Handler()
+                        handler.postDelayed({
+                            llProgressBar.visibility = View.GONE
+                            showDialog()
+                        }, 5000)
 
                     };
-                val handler = Handler()
-                handler.postDelayed({
-                    llProgressBar.visibility = View.GONE
-                }, 5000)
+
             }
 
         }
@@ -133,11 +139,21 @@ class SizeListActivity : AppCompatActivity(), View.OnClickListener {
         if (sharedIdValue.equals("defaultname")) {
             return arrayListOf()
         } else {
-            val result: ArrayList<Int> =
-                sharedIdValue?.split(",")?.map { it.toInt() } as ArrayList<Int>;
-            return result
+            val result: ArrayList<Int> = arrayListOf()
+            sharedIdValue?.split(",")?.map {
+                if (it.isNotEmpty()) {
+                    Log.e("TAG", "getSharedPrefgetSharedPref:$it ")
+                    result.add(it.toInt())
+                }
+            }
+            if (result.size > 0) {
+                return result
+            }
+            return arrayListOf()
+
         }
     }
+
     private fun setSharedPref() {
         val editor: SharedPreferences.Editor = sharedPreferences.edit()
         var sizeListString: String =
@@ -146,6 +162,7 @@ class SizeListActivity : AppCompatActivity(), View.OnClickListener {
         editor.apply()
         editor.commit()
     }
+
     private fun applySize(value: Int) {
         var result: Float = value / 100.0.toFloat();
         Settings.System.putFloat(
@@ -169,13 +186,10 @@ class SizeListActivity : AppCompatActivity(), View.OnClickListener {
         val dialog = Dialog(this)
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
         dialog.setCancelable(false)
-        dialog.setContentView(R.layout.create_size_dialog)
-        val seekBar = dialog.findViewById(R.id.seekBar) as SeekBar
-        val txtChangeSize = dialog.findViewById(R.id.txtChangeSize) as TextView
+        dialog.setContentView(R.layout.notify_change_size_dialog)
 
-
-        val btnCreate = dialog.findViewById(R.id.btnCreate) as Button
-        btnCreate.setOnClickListener {
+        val btnOK = dialog.findViewById(R.id.btnOK) as Button
+        btnOK.setOnClickListener {
             dialog.dismiss()
         }
         dialog.show()
